@@ -1,0 +1,43 @@
+class PluralFSM:
+    def __init__(self):
+        # Define transitions for each state
+        self.transitions = {
+            'start': self.handle_start,
+            'add_s': self.add_s,
+            'add_es': self.add_es,
+            'change_y': self.change_y,
+            'add_ves': self.add_ves,
+        }
+    
+    def handle_start(self, word):
+        if word.endswith(('s', 'x', 'z', 'sh', 'ch')):
+            return self.transitions['add_es'](word)
+        elif word.endswith('y') and len(word) > 1 and word[-2] not in 'aeiou':
+            return self.transitions['change_y'](word)
+        elif word.endswith(('f', 'fe')):
+            return self.transitions['add_ves'](word)
+        else:
+            return self.transitions['add_s'](word)
+    
+    def add_s(self, word):
+        return word + 's'
+    
+    def add_es(self, word):
+        return word + 'es'
+    
+    def change_y(self, word):
+        return word[:-1] + 'ies'
+    
+    def add_ves(self, word):
+        return word[:-1] + 'ves'
+    
+    def pluralize(self, word):
+        return self.transitions['start'](word)
+
+# Example usage:
+fsm = PluralFSM()
+
+nouns = ["cat", "box", "city", "wolf", "bush"]
+plural_nouns = {noun: fsm.pluralize(noun) for noun in nouns}
+
+print(plural_nouns)
