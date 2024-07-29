@@ -1,0 +1,43 @@
+import nltk
+import spacy
+from gensim.models import Word2Vec
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
+# Load spacy model
+nlp = spacy.load('en_core_web_sm')
+
+# Function to preprocess text
+def preprocess_text(text):
+    doc = nlp(text)
+    sentences = [sent.text for sent in doc.sents]
+    return sentences
+
+# Function to calculate sentence similarity
+def sentence_similarity(sent1, sent2):
+    sent1 = nlp(sent1).vector
+    sent2 = nlp(sent2).vector
+    return cosine_similarity([sent1], [sent2])[0][0]
+
+# Function to evaluate coherence
+def evaluate_coherence(text):
+    sentences = preprocess_text(text)
+    similarities = []
+    
+    for i in range(len(sentences) - 1):
+        sim = sentence_similarity(sentences[i], sentences[i+1])
+        similarities.append(sim)
+    
+    avg_similarity = np.mean(similarities)
+    return avg_similarity
+
+# Example text
+text = """Natural language processing is a complex field. It involves a lot of algorithms. Some of them are based on machine learning. Others use deep learning techniques. The aim is to make computers understand human language. It's a challenging task, but progress is being made. We can now build models that understand context. This helps in many applications like chatbots and translation."""
+# Evaluate coherence
+coherence_score = evaluate_coherence(text)
+print(f"Coherence Score: {coherence_score}")
+
+if coherence_score > 0.5:
+    print("The text is coherent.")
+else:
+    print("The text is not very coherent.")
