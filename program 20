@@ -1,0 +1,38 @@
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Sample documents (corpus)
+documents = [
+    "Machine learning is the study of computer algorithms that improve automatically through experience.",
+    "Natural language processing (NLP) is a subfield of artificial intelligence and linguistics.",
+    "Deep learning models are based on artificial neural networks and are used for complex pattern recognition tasks.",
+    "Information retrieval is the process of obtaining information from large collections of text data.",
+    "TF-IDF is a technique for scoring words based on their frequency and importance across a set of documents."
+]
+
+# Sample query
+query = "Machine learning and natural language processing"
+
+# Initialize TF-IDF Vectorizer
+vectorizer = TfidfVectorizer(stop_words='english')
+
+# Fit and transform documents
+tfidf_matrix = vectorizer.fit_transform(documents)
+
+# Transform the query using the same vectorizer
+query_vector = vectorizer.transform([query])
+
+# Calculate cosine similarity between query and documents
+cosine_similarities = cosine_similarity(query_vector, tfidf_matrix).flatten()
+
+# Rank documents based on cosine similarity score
+document_scores = [
+    (score, documents[index]) for index, score in enumerate(cosine_similarities)
+]
+document_scores.sort(reverse=True, key=lambda x: x[0])
+
+# Print ranked documents
+print("Ranked Documents:")
+for score, document in document_scores:
+    print(f"TF-IDF Score: {score:.3f} - Document: {document}")
+
