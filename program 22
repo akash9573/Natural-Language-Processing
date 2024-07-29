@@ -1,0 +1,43 @@
+import spacy
+
+def resolve_references(text):
+    nlp = spacy.load("en_core_web_sm")
+    doc = nlp(text)
+    
+    references = {}
+    current_entity = None
+    
+    for token in doc:
+        if token.dep_ == "nsubj" or token.dep_ == "nsubjpass":  # Check for subject or passive subject
+            current_entity = token.text.lower()
+        elif token.dep_ == "poss":  # Check for possessive
+            current_entity = token.head.text.lower()
+        elif token.dep_ == "pobj" or token.dep_ == "dobj":  # Check for object or prepositional object
+            current_entity = token.text.lower()
+        elif token.dep_ == "compound":  # Check for compound nouns
+            current_entity = token.text.lower()
+        elif token.dep_ == "punct":  # Ignore punctuation
+            current_entity = None
+        elif token.dep_ == "nsubjpass":  # Ignore passive subjects
+            current_entity = None
+        elif token.dep_ == "ROOT":  # Root of the sentence
+            current_entity = None
+        
+        if token.dep_ == "pron" and token.text.lower() in ["he", "she", "it", "they", "them", "his", "her", "its"]:
+            if current_entity:
+                references[token.i] = current_entity
+    
+    resolved_text = []
+    for token in doc:
+        if token.i in references:
+            resolved_text.append(references[token.i])
+        else:
+            resolved_text.append(token.text)
+    
+    return " ".join(resolved_text)
+
+# Example usage:
+if __name__ == "__main__":
+    text = "John saw Mary and he greeted her warmly. She thanked him."
+    resolved_text = resolve_references(text)
+    print(resolved_text)
