@@ -1,0 +1,59 @@
+import nltk
+from nltk.corpus import wordnet as wn
+
+# Download the WordNet data
+nltk.download('wordnet')
+nltk.download('omw-1.4')  # For extended multilingual WordNet
+
+# Function to get synsets
+def get_synsets(word):
+    synsets = wn.synsets(word)
+    return synsets
+
+# Function to get definitions and examples
+def get_definitions_and_examples(synset):
+    return synset.definition(), synset.examples()
+
+# Function to get hypernyms and hyponyms
+def get_hypernyms_and_hyponyms(synset):
+    hypernyms = synset.hypernyms()
+    hyponyms = synset.hyponyms()
+    return hypernyms, hyponyms
+
+# Function to get synonyms and antonyms
+def get_synonyms_and_antonyms(word):
+    synonyms = set()
+    antonyms = set()
+    for syn in wn.synsets(word):
+        for lemma in syn.lemmas():
+            synonyms.add(lemma.name())
+            if lemma.antonyms():
+                antonyms.add(lemma.antonyms()[0].name())
+    return synonyms, antonyms
+
+# Example word
+word = 'dog'
+
+# Retrieve synsets
+synsets = get_synsets(word)
+print(f"Synsets for '{word}':")
+for synset in synsets:
+    print(synset)
+
+# Retrieve definitions and examples
+print(f"\nDefinitions and examples for the first synset of '{word}':")
+definition, examples = get_definitions_and_examples(synsets[0])
+print(f"Definition: {definition}")
+print(f"Examples: {examples}")
+
+# Retrieve hypernyms and hyponyms
+print(f"\nHypernyms and hyponyms for the first synset of '{word}':")
+hypernyms, hyponyms = get_hypernyms_and_hyponyms(synsets[0])
+print(f"Hypernyms: {hypernyms}")
+print(f"Hyponyms: {hyponyms}")
+
+# Retrieve synonyms and antonyms
+print(f"\nSynonyms and antonyms for '{word}':")
+synonyms, antonyms = get_synonyms_and_antonyms(word)
+print(f"Synonyms: {synonyms}")
+print(f"Antonyms: {antonyms}")
