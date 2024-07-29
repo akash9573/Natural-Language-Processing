@@ -1,0 +1,75 @@
+import re
+
+class FOPCParser:
+    def __init__(self):
+        self.patterns = {
+            'variable': re.compile(r'^[a-z]$'),
+            'constant': re.compile(r'^[A-Z][a-zA-Z0-9]*$'),
+            'predicate': re.compile(r'^[A-Z][a-zA-Z0-9]*\((.*)\)$'),
+            'function': re.compile(r'^[a-z][a-zA-Z0-9]*\((.*)\)$')
+        }
+
+    def is_variable(self, token):
+        return bool(self.patterns['variable'].match(token))
+
+    def is_constant(self, token):
+        return bool(self.patterns['constant'].match(token))
+
+    def is_predicate(self, token):
+        return bool(self.patterns['predicate'].match(token))
+
+    def is_function(self, token):
+        return bool(self.patterns['function'].match(token))
+
+    def parse_predicate(self, token):
+        match = self.patterns['predicate'].match(token)
+        if match:
+            predicate_name = token[:match.start(1)-1]
+            arguments = match.group(1)
+            return predicate_name, self.parse_arguments(arguments)
+        return None
+
+    def parse_function(self, token):
+        match = self.patterns['function'].match(token)
+        if match:
+            function_name = token[:match.start(1)-1]
+            arguments = match.group(1)
+            return function_name, self.parse_arguments(arguments)
+        return None
+
+    def parse_arguments(self, arguments):
+        args = []
+        bracket_level = 0
+        current_arg = []
+        for char in arguments:
+            if char == ',' and bracket_level == 0:
+                args.append(''.join(current_arg).strip())
+                current_arg = []
+            else:
+                if char == '(':
+                    bracket_level += 1
+                elif char == ')':
+                    bracket_level -= 1
+                current_arg.append(char)
+        if current_arg:
+            args.append(''.join(current_arg).strip())
+        return [self.parse(arg) for arg in args]
+
+    def parse(self, token):
+        token = token.strip()
+        if self.is_variable(token):
+            return ('variable', token)
+        elif self.is_constant(token):
+            return ('constant', token)
+        elif self.is_predicate(token):
+            return ('predicate', self.parse_predicate(token))
+        elif self.is_function(token):
+            return ('function', self.parse_function(token))
+        else:
+            raise ValueError(f"Unrecognized token: {token}")
+
+# Example usage:
+parser = FOPCParser()
+expression = "Loves(John, Mary)"
+parsed_expression = parser.parse(expression)
+print(parsed_expression)
