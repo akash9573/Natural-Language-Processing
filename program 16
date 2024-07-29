@@ -1,0 +1,26 @@
+import spacy
+
+# Load the pre-trained SpaCy model
+nlp = spacy.load("en_core_web_sm")
+
+def perform_ner(text):
+    # Process the text using the SpaCy model
+    doc = nlp(text)
+
+    # Extract named entities
+    entities = [(ent.text, ent.label_) for ent in doc.ents]
+    return entities
+
+if __name__ == "__main__":
+    # Example text
+    text = """
+    Apple is looking at buying U.K. startup for $1 billion. 
+    Elon Musk's SpaceX launched another rocket from Cape Canaveral yesterday.
+    """
+
+    # Perform NER
+    entities = perform_ner(text)
+
+    # Print the named entities
+    for entity in entities:
+        print(f"Entity: {entity[0]}, Label: {entity[1]}")
